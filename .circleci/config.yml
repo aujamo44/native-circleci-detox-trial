@@ -1,4 +1,6 @@
 version: 2.1
+orbs:
+  react-native: react-native-community/react-native@7.1.1
 jobs:
   build:
     working_directory: ~/native-circleci-detox-trial
@@ -6,9 +8,6 @@ jobs:
       - image: circleci/node:10.16.3
     steps:
       - checkout
-      - run:
-          name: Update NPM
-          command: "sudo npm install -g npm@5"
       - restore_cache:
           key: dependency-cache-{{ checksum "package-lock.json" }}
       - run:
