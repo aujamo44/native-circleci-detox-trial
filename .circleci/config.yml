@@ -22,6 +22,10 @@ jobs:
             - node_modules
 
       - run:
+          name: build detox tests
+          command:
+            npm run build-android
+      - run:
           name: detox tests
           command:
             npm run circle-test
