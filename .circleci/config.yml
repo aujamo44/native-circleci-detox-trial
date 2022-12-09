@@ -27,9 +27,10 @@ jobs:
             npm run circle-test
 
       - persist_to_workspace:
-          root: ~/native-circleci-trial
+          root: ~/
           paths:
             - node_modules
+            - native-circleci-detox-trial
 
       - store_test_results:
           path: test-results
