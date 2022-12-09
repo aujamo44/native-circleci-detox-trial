@@ -24,7 +24,7 @@ jobs:
       - run:
           name: detox tests
           command:
-            npm run circle-test
+            circle-test
 
       - persist_to_workspace:
           root: ~/native-circleci-trial
@@ -40,8 +40,6 @@ jobs:
 workflows:
   example-workflow:
       jobs:
-        - node/test:
-            run-command: npm run circle-test 
-            test-results-for: other 
+        - node
 
             
