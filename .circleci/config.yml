@@ -15,6 +15,9 @@ jobs:
           key: dependency-cache-{{ checksum "package-lock.json" }}
           paths:
             - ./node_modules
+    test:
+      docker:
+       -image: circleci/node:10.16.3
       - run:
           name: Run tests
           command: npm run circle-test
