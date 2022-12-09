@@ -1,4 +1,6 @@
 version: 2.1
+orbs:
+  react-native: react-native-community/react-native@7.1.1
 jobs:
   build:
     working_directory: ~/native-circleci-detox-trial
