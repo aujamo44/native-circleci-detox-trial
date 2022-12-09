@@ -1,5 +1,21 @@
 version: 2.1
-jobs:
+orbs:
+  react-native: react-native-community/react-native@7.1.1
+  workflows:
+    example-workflow:
+      jobs:
+        - react-native/android_test:
+            detox_loglevel: warn 
+            homebrew_cache: true 
+            homebrew_update: true 
+            should_on_after_emulator_start: false 
+            should_on_after_initialize: false 
+            start_metro: false 
+            yarn_cache: true 
+            detox_configuration: android.emu.debug 
+        - react-native/android_build:
+            build_cache: true 
+            attach_workspace: true 
   build:
     working_directory: ~/native-circleci-detox-trial
     docker:
@@ -15,9 +31,9 @@ jobs:
           key: dependency-cache-{{ checksum "package-lock.json" }}
           paths:
             - ./node_modules
-    test:
-      docker:
-       -image: circleci/node:10.16.3
-      - run:
-          name: Run tests
-          command: npm run circle-test
+    workflows:
+    example-workflow:
+      jobs:
+        - react-native/android_build:
+            build_cache: true 
+            attach_workspace: true 
