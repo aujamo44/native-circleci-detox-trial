@@ -1,4 +1,6 @@
 version: 2.1
+orbs:
+  node: circleci/node@5.0.3
 jobs:
   node:
     working_directory: ~/natice-circleci-detox-trial
@@ -11,6 +13,7 @@ jobs:
       - restore_cache:
           key: node-v1-{{ checksum "package.json" }}-{{ arch }}
 
+      - node/install-packages
       - run: npm install
 
       - save_cache:
@@ -20,8 +23,8 @@ jobs:
 
       - run:
           name: detox tests
-          command: |
-            detox test -c android.emu.debug
+          command:
+            npm run circle-test
 
       - persist_to_workspace:
           root: ~/native-circleci-trial
@@ -34,38 +37,11 @@ jobs:
       - store_artifacts:
           path: test-results
      
-  android-build-and-test:
-    working_directory: ~/native-circleci-trial/android
-    docker:
-      - image: circleci/android:api-29-node
-    steps:
-      - checkout:
-          path: ~/native-circleci-trial
-
-      - attach_workspace:
-          at: ~/native-circleci-trial
-
-      - restore_cache:
-          key: bundle-v1-{{ checksum "Gemfile.lock" }}-{{ arch }}
-
-      - run: bundle install
-
-      - save_cache:
-          key: bundle-v1-{{ checksum "Gemfile.lock" }}-{{ arch }}
-          paths:
-            - vendor/bundle
-
-      - store_test_results:
-          path: test-results
-
-      - store_artifacts:
-          path: test-results
-
 workflows:
-  node-android-ios:
-    jobs:
-      - node
-      - android-build-and-test:
-          requires:
-            - node
+  example-workflow:
+      jobs:
+        - node/test:
+            run-command: npm run circle-test 
+            test-results-for: other 
+
             
