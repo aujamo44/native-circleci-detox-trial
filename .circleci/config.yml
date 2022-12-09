@@ -33,8 +33,9 @@ jobs:
       - persist_to_workspace:
           root: ~/
           paths:
-            - node_modules
             - native-circleci-detox-trial
+            - node_modules
+            - e2e
 
       - store_test_results:
           path: test-results
