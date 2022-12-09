@@ -13,6 +13,7 @@ const App = () => {
             setMessage('Hello Tester');
           }, Math.floor(Math.random() * 200));
         }}
+        testID="hello_button"
       />
       {message && (
         <Text style={styles.messageText} testID="printed-message">
