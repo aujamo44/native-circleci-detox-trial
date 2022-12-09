@@ -4,16 +4,18 @@ import {
   AfterAll,
   setDefaultTimeout,
 } from '@cucumber/cucumber';
-import {init, cleanup} from 'detox';
-import {detox as config} from 'detox';
 setDefaultTimeout(240 * 1000);
+
+const init = require('../node_modules/detox/internals').init({workerId: null});
+const cleanup = require('../node_modules/detox/internals').cleanup();
+
 BeforeAll(async () => {
-  await init(config);
+  await init;
   await device.launchApp({newInstance: true});
 });
 Before(async () => {
   await device.reloadReactNative();
 });
 AfterAll(async () => {
-  await cleanup();
+  await cleanup;
 });
