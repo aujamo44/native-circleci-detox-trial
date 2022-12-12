@@ -25,7 +25,6 @@ jobs:
           command: |
             npm run build-android
             npm run circle-test
-            java -version
           environment:
             JEST_JUNIT_OUTPUT: test-results/jest/junit.xml
 
@@ -51,6 +50,10 @@ jobs:
 
       - attach_workspace:
           at: ~/native-circleci-detox-trial
+
+      - run: 
+          name: testing
+          command: java -version
 
       - restore_cache:
           key: bundle-v1-{{ checksum "Gemfile.lock" }}-{{ arch }}
