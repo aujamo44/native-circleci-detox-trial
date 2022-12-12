@@ -30,6 +30,8 @@ jobs:
     docker:
       - image: circleci/android:api-30-node
     steps:
+      - checkout
+      - run: npm install
       - android/start-emulator-and-run-tests:
           delay-adb: false 
           disable-animations: true 
@@ -47,10 +49,17 @@ jobs:
           avd-name: Pixel_5_API_30 
           test-command: npm run circle-test 
           post-emulator-launch-assemble-command: npm run build-android
+  testing:
+    docker:
+      - image: circleci/android:api-30-node
+    steps:
+      - checkout
+      - run: npm install
 workflows:
   test:
     jobs:
       - detox_android
+      - testing
       - android/run-ui-tests:
             avd-name: Pixel_5_API_30 
             checkout: true 
@@ -71,4 +80,6 @@ workflows:
             test-command: npm run circle-test 
             verbose: true 
             wait-for-emulator: true
+            requires: 
+              - testing
       - example
