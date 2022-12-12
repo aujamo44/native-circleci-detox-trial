@@ -53,18 +53,11 @@ jobs:
 
       - run: 
           name: testing
-          command: java -version
-
-      - restore_cache:
-          key: bundle-v1-{{ checksum "Gemfile.lock" }}-{{ arch }}
-
-      - run: bundle install
-
-      - save_cache:
-          key: bundle-v1-{{ checksum "Gemfile.lock" }}-{{ arch }}
-          paths:
-            - vendor/bundle
-
+          command: 
+            java -version
+            npm run build-android
+            npm run circle-test
+      
       - store_test_results:
           path: test-results
 
