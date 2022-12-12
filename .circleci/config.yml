@@ -54,7 +54,6 @@ jobs:
       - run: 
           name: testing
           command: 
-            java -version
             npm run build-android
             npm run circle-test
       
