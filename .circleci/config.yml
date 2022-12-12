@@ -34,7 +34,7 @@ jobs:
   detox_ios:
     executor:
       name: rn/macos
-      xcode_version: 14.1
+      xcode_version: 14.1.0
     steps:
       - checkout
       - rn/setup_macos_executor
