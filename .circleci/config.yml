@@ -58,7 +58,7 @@ jobs:
       - run:
           name: test
           command: 
-            npm run circle-test
+            adb devices
 
 workflows:
   example-workflow:
