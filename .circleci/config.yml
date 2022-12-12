@@ -11,13 +11,13 @@ commands:
     steps:
       - restore_cache:
           keys: 
-            - ios-build-cache-{{ arch }}-{{ checksum "~/.tmp/checksumfiles/package.json" }}
+            - ios-build-cache-{{ arch }}-{{ checksum "~/artifacts/package.json" }}
       - run: |
           npm install -g detox-cli react-native-cli
           detox build --configuration ios.sim.debug
           npm run ios
       - save_cache:
-          key: ios-build-cache-{{ arch }}-{{ checksum "~/.tmp/checksumfiles/package.json" }}
+          key: ios-build-cache-{{ arch }}-{{ checksum "~/artifacts/package.json" }}
           paths:
             - ios/build/Build
 
@@ -34,7 +34,7 @@ jobs:
   detox_ios:
     executor:
       name: rn/macos
-      xcode_version: 12.5.1
+      xcode_version: 14.1
     steps:
       - checkout
       - rn/setup_macos_executor
@@ -43,7 +43,7 @@ jobs:
       - rn/ios_simulator_start:
           device: iPhone 12
       - detox_build_ios
-      - run: detox test --configuration ios --take-screenshots all
+      - run: detox test --configuration ios.sim.debug --take-screenshots all
       - store_artifacts:
           path: artifacts
 
@@ -62,36 +62,17 @@ jobs:
       - store_artifacts:
           path: artifacts
 
-  beta_android:
-    executor:
-      name: android/android-machine
-      resource-class: large
-      tag: 2021.10.1
-    steps:
-      - checkout
-      - node/install-yarn
-      - rn/yarn_install
-      - ruby/install-deps:
-          app-dir: android
-      - ruby/install-deps:
-          app-dir: android
-      - android/restore-gradle-cache
-      - run:
-          command: bundle exec fastlane beta
-          working_directory: android
-      - android/save-gradle-cache
-
 workflows:
   test_and_distribute:
     jobs:
       - node/test:
-          app-dir: native-circleci-detox-trial 
+          app-dir: ~/native-circleci-detox-trial 
           name: unit-test
           pkg-manager: npm
           version: 16.14.0
       - node/run:
           name: eslint
-          yarn-run: lint
+          npm-run: lint
           pkg-manager: npm
           version: 12.22.5
       - detox_ios
