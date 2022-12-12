@@ -1,9 +1,25 @@
-version: '2.1'
+version: 2.1
+
 orbs:
+  node: circleci/node@5.0.3
   android: circleci/android@2.1.2
-  rn: react-native-community/react-native@5.6.0
+  rn: react-native-community/react-native@7.1.1
+  ruby: circleci/ruby@2.0.0
 
 commands:
+  detox_build_ios:
+    steps:
+      - restore_cache:
+          keys: 
+            - ios-build-cache-{{ arch }}-{{ checksum "~/.tmp/checksumfiles/package.json" }}
+      - run: |
+          npm install -g detox-cli react-native-cli
+          detox build --configuration ios.sum.debug
+      - save_cache:
+          key: ios-build-cache-{{ arch }}-{{ checksum "~/.tmp/checksumfiles/package.json" }}
+          paths:
+            - ios/build/Build
+
   detox_build_android:
     steps:
       - android/restore-gradle-cache
@@ -11,7 +27,24 @@ commands:
           npm install -g detox-cli react-native-cli
           detox build --configuration android.emu.debug
       - android/save-gradle-cache
+
 jobs:
+  detox_ios:
+    executor:
+      name: rn/macos
+      xcode_version: 12.5.1
+    steps:
+      - checkout
+      - rn/setup_macos_executor
+      - run: npm install
+      - rn/pod_install
+      - rn/ios_simulator_start:
+          device: iPhone 12
+      - detox_build_ios
+      - run: detox test --configuration ios --take-screenshots all
+      - store_artifacts:
+          path: artifacts
+
   detox_android:
     executor:
       name: android/android-machine
@@ -21,65 +54,45 @@ jobs:
       - checkout
       - run: npm install
       - rn/android_emulator_start:
-           device_name: Pixel_5_API_30
+          device_name: Pixel_5_API_30
       - detox_build_android
-      - run: npm run circle-test
+      - run: detox test --configuration android.emu.debug --take-screenshots all
       - store_artifacts:
-           path: artifacts
-  example:
-    docker:
-      - image: circleci/android:api-30-node
+          path: artifacts
+
+  beta_android:
+    executor:
+      name: android/android-machine
+      resource-class: large
+      tag: 2021.10.1
     steps:
       - checkout
-      - run: npm install
-      - android/start-emulator-and-run-tests:
-          delay-adb: false 
-          disable-animations: true 
-          install-system-image: true 
-          kill-emulators: true 
-          no-audio: true 
-          no-boot-anim: true 
-          no-snapshot: true 
-          no-window: true 
-          restore-gradle-cache-post-emulator-launch: true 
-          run-logcat: false 
-          save-gradle-cache: true 
-          verbose: true 
-          wait-for-emulator: true 
-          avd-name: Pixel_5_API_30 
-          test-command: npm run circle-test 
-          post-emulator-launch-assemble-command: npm run build-android
-  testing:
-    docker:
-      - image: circleci/android:api-30-node
-    steps:
-      - checkout
-      - run: npm install
+      - node/install-yarn
+      - rn/yarn_install
+      - ruby/install-deps:
+          app-dir: android
+      - ruby/install-deps:
+          app-dir: android
+      - android/restore-gradle-cache
+      - run:
+          command: bundle exec fastlane beta
+          working_directory: android
+      - android/save-gradle-cache
+
 workflows:
-  test:
+  test_and_distribute:
     jobs:
+      - node/test:
+          app-dir: native-circleci-detox-trial 
+          name: unit-test
+          pkg-manager: npm
+          version: 16.00.0
+      - node/run:
+          name: eslint
+          yarn-run: lint
+          pkg-manager: npm
+          version: 12.22.5
+      - detox_ios
       - detox_android
-      - testing
-      - android/run-ui-tests:
-            avd-name: Pixel_5_API_30 
-            checkout: true 
-            delay-adb: false 
-            disable-animations: true 
-            executor: 
-              name: android/android-machine 
-              resource-class: large
-              tag: 2021.10.1
-            install-system-image: true 
-            kill-emulators: true 
-            no-audio: true 
-            no-boot-anim: true 
-            no-window: true 
-            post-emulator-launch-assemble-command: 
-              npm install -g detox-cli react-native-cli &&
-              detox build --configuration android.emu.debug
-            test-command: npm run circle-test 
-            verbose: true 
-            wait-for-emulator: true
-            requires: 
-              - testing
-      - example
+      - rn/android_build:
+          checkout: true
