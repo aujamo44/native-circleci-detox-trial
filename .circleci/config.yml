@@ -44,9 +44,9 @@ jobs:
           save-gradle-cache: true 
           verbose: true 
           wait-for-emulator: true 
-          avd-name: Pizel_5_API_30 
+          avd-name: Pixel_5_API_30 
           test-command: npm run circle-test 
-          post-emulator-launch-assemble-command: detox_build_android
+          post-emulator-launch-assemble-command: npm run build-android
 workflows:
   test:
     jobs:
@@ -65,7 +65,9 @@ workflows:
             no-audio: true 
             no-boot-anim: true 
             no-window: true 
-            post-emulator-launch-assemble-command: npm run build-android 
+            post-emulator-launch-assemble-command: 
+              npm install -g detox-cli react-native-cli
+              detox build --configuration android.emu.debug
             test-command: npm run circle-test 
             verbose: true 
             wait-for-emulator: true
