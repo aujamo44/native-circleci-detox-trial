@@ -24,7 +24,7 @@ jobs:
           name: detox tests
           command: |
             npm run build-android
-            npm run test-android
+            npm run circle-test
           environment:
             JEST_JUNIT_OUTPUT: test-results/jest/junit.xml
 
