@@ -39,7 +39,7 @@ jobs:
       - store_artifacts:
           path: test-results
 
-  android-build-and-test:
+  android-build:
     working_directory: ~/native-circleci-detox-trial/android
     docker:
       - image: circleci/android:api-30-node
@@ -52,24 +52,36 @@ jobs:
           at: ~/native-circleci-detox-trial
 
       - run: 
-          name: testing
+          name: build
           command: 
             npm run build-android
-            npm run circle-test
+  android-test:
+    working_directory: ~/native-circleci-detox-trial/android
+    docker:
+      - image: circleci/android:api-30-node
       
-      - store_test_results:
-          path: test-results
+    steps:
+      - checkout:
+          path: ~/native-circleci-detox-trial
 
-      - store_artifacts:
-          path: test-results
+      - attach_workspace:
+          at: ~/native-circleci-detox-trial
+
+      - run: 
+          name: build
+          command: 
+            npm run circle-test
 
 workflows:
   example-workflow:
       jobs:
         - node
-        - android-build-and-test:
+        - android-build:
             requires: 
               - node
+        - android-test:
+            requires:
+              - android-build
 
         
 
