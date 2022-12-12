@@ -14,7 +14,8 @@ commands:
             - ios-build-cache-{{ arch }}-{{ checksum "~/.tmp/checksumfiles/package.json" }}
       - run: |
           npm install -g detox-cli react-native-cli
-          detox build --configuration ios.sum.debug
+          detox build --configuration ios.sim.debug
+          npm run ios
       - save_cache:
           key: ios-build-cache-{{ arch }}-{{ checksum "~/.tmp/checksumfiles/package.json" }}
           paths:
@@ -26,6 +27,7 @@ commands:
       - run: |
           npm install -g detox-cli react-native-cli
           detox build --configuration android.emu.debug
+          npm run android
       - android/save-gradle-cache
 
 jobs:
@@ -86,7 +88,7 @@ workflows:
           app-dir: native-circleci-detox-trial 
           name: unit-test
           pkg-manager: npm
-          version: 16.00.0
+          version: 16.14.0
       - node/run:
           name: eslint
           yarn-run: lint
