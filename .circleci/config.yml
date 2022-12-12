@@ -58,10 +58,16 @@ jobs:
       - rn/android_emulator_start:
           device_name: Pixel_5_API_30
       - detox_build_android
-      - run: detox test --configuration android.emu.debug --take-screenshots all
+      - run: detox test --configuration android.emu.debug --cleanup --take-screenshots all
       - store_artifacts:
           path: artifacts
 
+  start_metro:
+    steps:
+      - checkout
+      - run: npm install
+      - run: npm run start
+      
 workflows:
   test_and_distribute:
     jobs:
