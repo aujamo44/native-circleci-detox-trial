@@ -8,7 +8,7 @@ commands:
     steps:
       - android/restore-gradle-cache
       - run: |
-          
+          npm install -g detox-cli react-native-cli
           detox build --configuration android.emu.debug
       - android/save-gradle-cache
 jobs:
@@ -26,6 +26,27 @@ jobs:
       - run: npm run circle-test
       - store_artifacts:
            path: artifacts
+  example:
+    docker:
+      - image: circleci/android:api-30-node
+    steps:
+      - android/start-emulator-and-run-tests:
+          delay-adb: false 
+          disable-animations: true 
+          install-system-image: true 
+          kill-emulators: true 
+          no-audio: true 
+          no-boot-anim: true 
+          no-snapshot: true 
+          no-window: true 
+          restore-gradle-cache-post-emulator-launch: true 
+          run-logcat: false 
+          save-gradle-cache: true 
+          verbose: true 
+          wait-for-emulator: true 
+          avd-name: Pizel_5_API_30 
+          test-command: npm run circle-test 
+          post-emulator-launch-assemble-command: detox_build_android
 workflows:
   test:
     jobs:
@@ -47,4 +68,5 @@ workflows:
             post-emulator-launch-assemble-command: npm run build-android 
             test-command: npm run circle-test 
             verbose: true 
-            wait-for-emulator: true 
+            wait-for-emulator: true
+      - example
