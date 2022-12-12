@@ -8,32 +8,10 @@ commands:
     steps:
       - android/restore-gradle-cache
       - run: |
-          npm install -g detox-cli react-native-cli
+          
           detox build --configuration android.emu.debug
       - android/save-gradle-cache
 jobs:
-  test:
-    executor:
-      name: android/android-machine
-      resource-class: large
-      tag: 2021.10.1
-    steps:
-      - checkout
-      - android/create-avd:
-          avd-name: Pixel_5_API_30
-          install: true
-          system-image: system-images;android-28;default;x86
-      - android/start-emulator:
-          avd-name: Pixel_5_API_30
-          no-window: true
-          restore-gradle-cache-prefix: v1a
-      - run: npm run build-android
-      - android/run-tests:
-          test-command: npm run circle-test
-          working-directory: ~/native-circleci-detox-trial 
-
-      - android/save-gradle-cache:
-          cache-prefix: v1a
   detox_android:
     executor:
       name: android/android-machine
@@ -51,5 +29,22 @@ jobs:
 workflows:
   test:
     jobs:
-      - test
       - detox_android
+      - android/run-ui-tests:
+            avd-name: Pixel_5_API_30 
+            checkout: true 
+            delay-adb: false 
+            disable-animations: true 
+            executor: 
+              name: android/android-machine 
+              resource-class: large
+              tag: 2021.10.1
+            install-system-image: true 
+            kill-emulators: true 
+            no-audio: true 
+            no-boot-anim: true 
+            no-window: true 
+            post-emulator-launch-assemble-command: npm run build-android 
+            test-command: npm run circle-test 
+            verbose: true 
+            wait-for-emulator: true 
