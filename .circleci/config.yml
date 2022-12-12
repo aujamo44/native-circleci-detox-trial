@@ -25,6 +25,7 @@ jobs:
           command: |
             npm run build-android
             npm run circle-test
+            java -version
           environment:
             JEST_JUNIT_OUTPUT: test-results/jest/junit.xml
 
@@ -38,7 +39,7 @@ jobs:
 
       - store_artifacts:
           path: test-results
-            
+
 workflows:
   example-workflow:
       jobs:
