@@ -1,6 +1,14 @@
 version: '2.1'
 orbs:
-  android: circleci/android@2.0
+  android: circleci/android@2.1.2
+commands:
+  detox_build_android:
+    steps:
+      - android/restore-gradle-cache
+      - run: |
+          npm install -g detox-cli react-native-cli
+          detox build --configuration android.emu.debug
+      - android/save-gradle-cache
 jobs:
   test:
     executor:
@@ -12,7 +20,7 @@ jobs:
       - android/create-avd:
           avd-name: Pixel_5_API_30
           install: true
-          system-image: system-images;android-30;default;x86
+          system-image: system-images;android-28;default;x86
       - android/start-emulator:
           avd-name: Pixel_5_API_30
           no-window: true
@@ -24,6 +32,19 @@ jobs:
 
       - android/save-gradle-cache:
           cache-prefix: v1a
+  detox_android:
+    executor:
+      name: android/android-machine
+      resource-class: large
+    steps:
+      - checkout
+      - run: npm install
+      - rn/android_emulator_start:
+           device_name: Pixel_5_API_30
+      - detox_build_android
+      - run: npm run circle-test
+      - store_artifacts:
+           path: artifacts
 workflows:
   test:
     jobs:
