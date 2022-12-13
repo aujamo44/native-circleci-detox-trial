@@ -37,19 +37,14 @@ commands:
           command: npm run start
           background: true
 
-jobs:
-  build:
-    docker: 
-      - image: cimg/node:16.14.0
-    steps:
-      - checkout
-      - run:  npm install
-          
+jobs:     
   detox_ios:
     executor:
       name: rn/macos
       xcode_version: 14.1.0
     steps:
+      - checkout
+      - run:  npm install
       - rn/setup_macos_executor
       - run: brew install applesimutils
       - rn/pod_install
@@ -66,6 +61,8 @@ jobs:
       resource-class: large
       tag: 2021.10.1
     steps:
+      - checkout
+      - run:  npm install
       - rn/android_emulator_start:
           device_name: Pixel_5_API_30
       - detox_build_android
@@ -76,7 +73,6 @@ jobs:
 workflows:
   test_and_distribute:
     jobs:
-      - build
       - node/test:
           name: unit-test
           pkg-manager: npm
@@ -87,9 +83,5 @@ workflows:
           npm-run: lint
           pkg-manager: npm
           version: 16.14.0
-      - detox_ios:
-          requires: 
-            - build
-      - detox_android:
-          requires: 
-            - build
+      - detox_ios
+      - detox_android
