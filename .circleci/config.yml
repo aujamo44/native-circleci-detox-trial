@@ -41,7 +41,10 @@ jobs:
       - rn/setup_macos_executor
       - run: npm install
       - rn/pod_install
-      - rn/metro_start
+      - run: 
+          name: Metro (background)
+          command: npm run start
+          background: true
       - rn/ios_simulator_start:
           device: iPhone 12
       - detox_build_ios
@@ -57,7 +60,10 @@ jobs:
     steps:
       - checkout
       - run: npm install
-      - rn/metro_start
+      - run: 
+          name: Metro (background)
+          command: npm run start
+          background: true
       - rn/android_emulator_start:
           device_name: Pixel_5_API_30
       - detox_build_android
