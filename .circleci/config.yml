@@ -48,9 +48,8 @@ jobs:
       - rn/setup_macos_executor
       - run: brew install applesimutils
       - rn/pod_install
-      - run: xcrun simctl list
       - rn/ios_simulator_start:
-          device: iPhone 12
+          device: iPhone 14
       - detox_build_ios
       - run: detox test --configuration ios.sim.debug --take-screenshots all
       - store_artifacts:
