@@ -1,23 +1,81 @@
 version: 2.1
-jobs:
-  build:
-    working_directory: ~/repo
-    docker:
-      - image: circleci/node:10.16.3
+
+orbs:
+  node: circleci/node@5.0.3
+  android: circleci/android@2.1.2
+  rn: react-native-community/react-native@7.1.1
+  ruby: circleci/ruby@2.0.0
+
+commands:
+  detox_build_ios:
+    steps:
+      - restore_cache:
+          keys: 
+            - ios-build-cache-{{ arch }}-{{ checksum "~/.tmp/checksumfiles/package.json" }}
+      - metro_start
+      - run: |
+          npm install -g detox-cli react-native-cli
+          detox build --configuration ios.sim.debug
+      - save_cache:
+          key: ios-build-cache-{{ arch }}-{{ checksum "~/.tmp/checksumfiles/package.json" }}
+          paths:
+            - ios/build/Build
+
+  detox_build_android:
+    steps:
+      - android/restore-gradle-cache
+      - metro_start
+      - run: |
+          npm install -g detox-cli react-native-cli
+          detox build --configuration android.emu.debug
+      - android/save-gradle-cache
+
+  metro_start:
+    steps:
+      - run:
+          name: Metro (background)
+          command: npm run start
+          background: true
+
+jobs:     
+  detox_ios:
+    executor:
+      name: rn/macos
+      xcode_version: 14.1.0
     steps:
       - checkout
-      - run:
-          name: Update NPM
-          command: "sudo npm install -g npm@5"
-      - restore_cache:
-          key: dependency-cache-{{ checksum "package-lock.json" }}
-      - run:
-          name: Install Dependencies
-          command: npm install
-      - save_cache:
-          key: dependency-cache-{{ checksum "package-lock.json" }}
-          paths:
-            - ./node_modules
-      - run:
-          name: Run tests
-          command: npm run circle-test
+      - run:  npm install
+      - rn/setup_macos_executor
+      - rn/pod_install
+      - rn/ios_simulator_start:
+          device: iPhone 14
+      - detox_build_ios
+      - run: detox test --configuration ios.sim.debug --take-screenshots all
+      - store_artifacts:
+          path: artifacts
+
+  detox_android:
+    executor:
+      name: android/android-machine
+      resource-class: large
+      tag: 2021.10.1
+    steps:
+      - checkout
+      - run:  npm install
+      - rn/android_emulator_start:
+          device_name: Pixel_5_API_30
+      - detox_build_android
+      - run: detox test --configuration android.emu.debug --cleanup --take-screenshots all
+      - store_artifacts:
+          path: artifacts
+      
+workflows:
+  test_and_distribute:
+    jobs:
+      - node/run:
+          name: eslint
+          npm-run: lint
+          pkg-manager: npm
+          version: 16.14.0
+      - detox_ios
+      - detox_android
