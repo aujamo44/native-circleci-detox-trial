@@ -1,35 +1,9 @@
 version: 2.1
 
 orbs:
-  node: circleci/node@5.0.3
   android: circleci/android@2.1.2
-  rn: react-native-community/react-native@7.1.1
-  ruby: circleci/ruby@2.0.0
 
 commands:
-  detox_build_ios:
-    steps:
-      - restore_cache:
-          keys: 
-            - ios-build-cache-{{ arch }}-{{ checksum "~/.tmp/checksumfiles/package.json" }}
-      - metro_start
-      - run: |
-          npm install -g detox-cli react-native-cli
-          detox build --configuration ios.sim.debug
-      - save_cache:
-          key: ios-build-cache-{{ arch }}-{{ checksum "~/.tmp/checksumfiles/package.json" }}
-          paths:
-            - ios/build/Build
-
-  detox_build_android:
-    steps:
-      - android/restore-gradle-cache
-      - metro_start
-      - run: |
-          npm install -g detox-cli react-native-cli
-          detox build --configuration android.emu.debug
-      - android/save-gradle-cache
-
   metro_start:
     steps:
       - run:
@@ -37,60 +11,134 @@ commands:
           command: npm run start
           background: true
 
-jobs:     
-  detox_ios:
-    executor:
-      name: rn/macos
-      xcode_version: 14.1.0
+  detox_build_ios:
+    steps:
+      - metro_start
+      - run: 
+          name: Install detox cli
+          command: npm install -g detox-cli react-native-cli
+      - run:
+          name: Build detox config
+          command: npm run build-ios
+
+  detox_build_android:
+    steps:
+      - android/restore-gradle-cache
+      - metro_start
+      - run: 
+          name: Install detox cli
+          command: npm install -g detox-cli react-native-cli
+      - run:
+          name: Build detox config
+          command: npm run build-android
+      - android/save-gradle-cache
+
+
+jobs:
+  node:
+    working_directory: ~/native-circleci-detox-trial
+    docker:
+      - image: cimg/node:12.16
+
     steps:
       - checkout
-      - run:  npm install
-      - rn/setup_macos_executor
-      - rn/pod_install
-      - rn/ios_simulator_start:
-          device: iPhone 14
+
+      - restore_cache:
+          key: node-v1-{{ checksum "package.json" }}-{{ arch }}
+
+      - run: npm install
+
+      - save_cache:
+          key: node-v1-{{ checksum "package.json" }}-{{ arch }}
+          paths:
+            - node_modules
+
+      - run:
+          name: linter
+          command: |
+            npm run lint
+
+      - persist_to_workspace:
+          root: ~/native-circleci-detox-trial
+          paths:
+            - node_modules
+
+      - store_test_results:
+          path: test-results
+
+      - store_artifacts:
+          path: test-results
+
+  macos-build-and-test:
+    working_directory: ~/native-circleci-detox-trial
+    macos:
+      xcode: 11.3.0
+    environment:
+      FL_OUTPUT_DIR: output
+      FASTLANE_LANE: test
+
+    steps:
+      - checkout
+
+      - restore_cache:
+          key: node-v1-{{ checksum "package.json" }}-{{ arch }}
+
+      - run: npm install
+
+      - save_cache:
+          key: node-v1-{{ checksum "package.json" }}-{{ arch }}
+          paths:
+            - node_modules
+
+      - run: 
+          command: pod install
+          working_directory: ios
+
       - detox_build_ios
-      - run: npm run test-ios -- --tags @passing
+
+      - run: 
+          name: Detox Tests
+          command: npm run test-ios
+
       - store_artifacts:
           path: artifacts
 
-  detox_android:
-    executor:
-      name: android/android-machine
-      resource-class: large
-      tag: 2021.10.1
+            
+  android-build-and-test:
+    working_directory: ~/native-circleci-detox-trial/android
+    docker:
+      - image: circleci/android:api-29-node
     steps:
-      - checkout
-      - run:  npm install
-      - rn/android_emulator_start:
-          device_name: Pixel_5_API_30
+      - checkout:
+          path: ~/native-circleci-detox-trial
+
+      - attach_workspace:
+          at: ~/native-circleci-detox-trial
+
       - detox_build_android
-      - run: npm run test-android -- --tags @passing
+
+      - android/start-emulator-and-run-tests:
+          avd-name: Pixel_5_API_30 
+          test-command: npm run test-android
+
+      - run:
+          name: Detox Tests
+          command: npm run test-ios
+
+      - store_test_results:
+          path: test-results
+
       - store_artifacts:
-          path: artifacts
-      
-  failing_detox_android:
-    executor:
-      name: android/android-machine
-      resource-class: large
-      tag: 2021.10.1
-    steps:
-      - checkout
-      - run:  npm install
-      - rn/android_emulator_start:
-          device_name: Pixel_5_API_30
-      - detox_build_android
-      - run: npm run test-android -- --tags @failing
-      - store_artifacts:
-          path: artifacts   
+          path: test-results
+
 workflows:
-  MyTrial:
+  node-android-ios:
     jobs:
-      - node/run:
-          name: eslint
-          npm-run: lint
-          pkg-manager: npm
-          version: 16.14.0
-      - detox_ios
-      - detox_android
-      - failing_detox_android
+      - node
+      - android-build-and-test:
+          requires:
+            - node
+      - macos-build-and-test:
+          requires:
+            - node
+            
