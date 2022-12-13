@@ -70,7 +70,6 @@ jobs:
           root: ~/
           paths:
             - native-circleci-detox-trial
-            - .cache/Detox
   detox_ios:
     executor:
       name: rn/macos
@@ -78,6 +77,7 @@ jobs:
     steps:
       - attach_workspace:
           at: ~/
+      - metro_start
       - run: npm run test-ios -- --tags @passing
       - store_artifacts:
           path: artifacts
@@ -102,11 +102,11 @@ jobs:
           paths: 
             - ~/.npm
           key: v1-dependencies-{{ .Branch }}-{{ checksum "package-lock.json" }}
+      - run: pwd
       - persist_to_workspace:
           root: ~/
           paths:
             - native-circleci-detox-trial
-            - .cache/Detox       
 
   detox_android:
     executor:
@@ -114,6 +114,7 @@ jobs:
       resource-class: large
       tag: 2021.10.1
     steps:
+      - metro_start
       - attach_workspace:
           at: ~/
       - run: npm run test-ios -- --tags @passing
