@@ -1,9 +1,34 @@
 version: 2.1
 
 orbs:
+  node: circleci/node@5.0.3
   android: circleci/android@2.1.2
+  rn: react-native-community/react-native@7.1.1
 
 commands:
+  detox_build_ios:
+    steps:
+      - restore_cache:
+          keys: 
+            - ios-build-cache-{{ checksum "package.json" }}-{{ arch }}
+      - metro_start
+      - run: |
+          npm install -g detox-cli react-native-cli
+          detox build --configuration ios.sim.debug
+      - save_cache:
+          key: ios-build-cache-{{ checksum "package.json" }}-{{ arch }}
+          paths:
+            - ios/build/Build
+
+  detox_build_android:
+    steps:
+      - android/restore-gradle-cache
+      - metro_start
+      - run: |
+          npm install -g detox-cli react-native-cli
+          detox build --configuration android.emu.debug
+      - android/save-gradle-cache
+
   metro_start:
     steps:
       - run:
@@ -11,134 +36,118 @@ commands:
           command: npm run start
           background: true
 
-  detox_build_ios:
-    steps:
-      - metro_start
-      - run: 
-          name: Install detox cli
-          command: npm install -g detox-cli react-native-cli
-      - run:
-          name: Build detox config
-          command: npm run build-ios
-
-  detox_build_android:
-    steps:
-      - android/restore-gradle-cache
-      - metro_start
-      - run: 
-          name: Install detox cli
-          command: npm install -g detox-cli react-native-cli
-      - run:
-          name: Build detox config
-          command: npm run build-android
-      - android/save-gradle-cache
-
-
 jobs:
-  node:
-    working_directory: ~/native-circleci-detox-trial
+  build:
     docker:
       - image: cimg/node:12.16
-
-    steps:
-      - checkout
-
-      - restore_cache:
-          key: node-v1-{{ checksum "package.json" }}-{{ arch }}
-
-      - run: npm install
-
-      - save_cache:
-          key: node-v1-{{ checksum "package.json" }}-{{ arch }}
-          paths:
-            - node_modules
-
-      - run:
-          name: linter
-          command: |
-            npm run lint
-
-      - persist_to_workspace:
-          root: ~/native-circleci-detox-trial
-          paths:
-            - node_modules
-
-      - store_test_results:
-          path: test-results
-
-      - store_artifacts:
-          path: test-results
-
-  macos-build-and-test:
     working_directory: ~/native-circleci-detox-trial
-    macos:
-      xcode: 11.3.0
-    environment:
-      FL_OUTPUT_DIR: output
-      FASTLANE_LANE: test
-
     steps:
       - checkout
-
-      - restore_cache:
-          key: node-v1-{{ checksum "package.json" }}-{{ arch }}
-
       - run: npm install
-
-      - save_cache:
-          key: node-v1-{{ checksum "package.json" }}-{{ arch }}
-          paths:
-            - node_modules
-
-      - run: 
-          command: pod install
-          working_directory: ios
-
+      - run: npm run lint
+  build_ios:
+    executor:
+      name: rn/macos
+      xcode_version: 14.1.0
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ .Branch }}-{{ checksum "package-lock.json" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
+      - run: npm install
+      - rn/setup_macos_executor
+      - rn/pod_install
+      - rn/ios_simulator_start:
+          device: iPhone 14
       - detox_build_ios
-
-      - run: 
-          name: Detox Tests
-          command: npm run test-ios
-
+      - save_cache:
+          paths: 
+            - ~/.npm
+          key: v1-dependencies-{{ .Branch }}-{{ checksum "package-lock.json" }}
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - native-circleci-detox-trial
+            - .cache/Detox
+  detox_ios:
+    executor:
+      name: rn/macos
+      xcode_version: 14.1.0
+    steps:
+      - attach_workspace:
+          at: ~/
+      - run: npm run test-ios -- --tags @passing
       - store_artifacts:
           path: artifacts
 
-            
-  android-build-and-test:
-    working_directory: ~/native-circleci-detox-trial/android
-    docker:
-      - image: circleci/android:api-29-node
+  build_android:
+    executor:
+      name: android/android-machine
+      resource-class: large
+      tag: 2021.10.1
     steps:
-      - checkout:
-          path: ~/native-circleci-detox-trial
-
-      - attach_workspace:
-          at: ~/native-circleci-detox-trial
-
+      - checkout
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ .Branch }}-{{ checksum "package-lock.json" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
+      - run: npm install
+      - rn/android_emulator_start:
+          device_name: Pixel_5_API_30
       - detox_build_android
+      - save_cache:
+          paths: 
+            - ~/.npm
+          key: v1-dependencies-{{ .Branch }}-{{ checksum "package-lock.json" }}
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - native-circleci-detox-trial
+            - .cache/Detox       
 
-      - android/start-emulator-and-run-tests:
-          avd-name: Pixel_5_API_30 
-          test-command: npm run test-android
-
-      - run:
-          name: Detox Tests
-          command: npm run test-ios
-
-      - store_test_results:
-          path: test-results
-
+  detox_android:
+    executor:
+      name: android/android-machine
+      resource-class: large
+      tag: 2021.10.1
+    steps:
+      - attach_workspace:
+          at: ~/
+      - run: npm run test-ios -- --tags @passing
       - store_artifacts:
-          path: test-results
+          path: artifacts
+      
+  failing_detox_android:
+    executor:
+      name: android/android-machine
+      resource-class: large
+      tag: 2021.10.1
+    steps:
+      - attach_workspace:
+          at: ~/
+      - run: npm run test-ios -- --tags @failing
+      - store_artifacts:
+          path: artifacts  
 
 workflows:
-  node-android-ios:
+  MyTrial:
     jobs:
-      - node
-      - android-build-and-test:
-          requires:
-            - node
-      - macos-build-and-test:
-          requires:
-            - node
-            
+      - build
+      - build_ios:
+          requires: 
+            - build
+      - build_android:
+          requires: 
+            - build
+      - detox_ios:
+          requires: 
+            - build_ios
+      - detox_android:
+          requires: 
+            - build_android
+      - failing_detox_android: 
+          requires: 
+            - build_android
