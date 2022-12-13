@@ -1,4 +1,4 @@
-import {Then, When, Given} from '@cucumber/cucumber';
+const {Then, When, Given} = require('@cucumber/cucumber');
 
 Given('user sees the homescreen', async () => {
   await device.reloadReactNative();
@@ -9,4 +9,7 @@ When('user clicks the hello button', async () => {
 Then('user should see the hello text', async () => {
   await element(by.id('hello_button')).tap();
   await expect(element(by.id('printed-message'))).toBeVisible();
+});
+When('user clicks the non-existing button', async () => {
+  await expect(element(by.id('no_button'))).toBeVisible();
 });

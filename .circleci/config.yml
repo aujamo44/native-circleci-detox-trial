@@ -4,20 +4,19 @@ orbs:
   node: circleci/node@5.0.3
   android: circleci/android@2.1.2
   rn: react-native-community/react-native@7.1.1
-  ruby: circleci/ruby@2.0.0
 
 commands:
   detox_build_ios:
     steps:
       - restore_cache:
           keys: 
-            - ios-build-cache-{{ arch }}-{{ checksum "~/.tmp/checksumfiles/package.json" }}
+            - ios-build-cache-{{{ checksum "package.json" }}-{{ arch }}
       - metro_start
       - run: |
           npm install -g detox-cli react-native-cli
           detox build --configuration ios.sim.debug
       - save_cache:
-          key: ios-build-cache-{{ arch }}-{{ checksum "~/.tmp/checksumfiles/package.json" }}
+          key: ios-build-cache-{{{ checksum "package.json" }}-{{ arch }}
           paths:
             - ios/build/Build
 
@@ -50,7 +49,7 @@ jobs:
       - rn/ios_simulator_start:
           device: iPhone 14
       - detox_build_ios
-      - run: detox test --configuration ios.sim.debug --take-screenshots all
+      - run: npm run test-ios -- --tags @passing
       - store_artifacts:
           path: artifacts
 
@@ -65,12 +64,26 @@ jobs:
       - rn/android_emulator_start:
           device_name: Pixel_5_API_30
       - detox_build_android
-      - run: detox test --configuration android.emu.debug --cleanup --take-screenshots all
+      - run: npm run test-android -- --tags @passing
       - store_artifacts:
           path: artifacts
       
+  failing_detox_android:
+    executor:
+      name: android/android-machine
+      resource-class: large
+      tag: 2021.10.1
+    steps:
+      - checkout
+      - run:  npm install
+      - rn/android_emulator_start:
+          device_name: Pixel_5_API_30
+      - detox_build_android
+      - run: npm run test-android -- --tags @failing
+      - store_artifacts:
+          path: artifacts   
 workflows:
-  test_and_distribute:
+  MyTrial:
     jobs:
       - node/run:
           name: eslint
@@ -79,3 +92,4 @@ workflows:
           version: 16.14.0
       - detox_ios
       - detox_android
+      - failing_detox_android
