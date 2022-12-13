@@ -14,7 +14,6 @@ commands:
             - ios-build-cache-{{ arch }}-{{ checksum "~/.tmp/checksumfiles/package.json" }}
       - run: |
           npm install -g detox-cli react-native-cli
-          brew install applesimutils
           detox build --configuration ios.sim.debug
           npm run ios
       - save_cache:
@@ -28,23 +27,28 @@ commands:
       - run: |
           npm install -g detox-cli react-native-cli
           detox build --configuration android.emu.debug
-          npm run android
       - android/save-gradle-cache
 
 jobs:
+  build:
+    docker: 
+      - image: cimg/node:12.16
+    steps:
+      - checkout
+      - run: npm install
+      - run: 
+          name: Metro (background)
+          command: npm run start
+          background: true
+          
   detox_ios:
     executor:
       name: rn/macos
       xcode_version: 14.1.0
     steps:
-      - checkout
       - rn/setup_macos_executor
-      - run: npm install
+      - run: brew install applesimutils
       - rn/pod_install
-      - run: 
-          name: Metro (background)
-          command: npm run start
-          background: true
       - rn/ios_simulator_start:
           device: iPhone 12
       - detox_build_ios
@@ -58,12 +62,6 @@ jobs:
       resource-class: large
       tag: 2021.10.1
     steps:
-      - checkout
-      - run: npm install
-      - run: 
-          name: Metro (background)
-          command: npm run start
-          background: true
       - rn/android_emulator_start:
           device_name: Pixel_5_API_30
       - detox_build_android
@@ -74,6 +72,7 @@ jobs:
 workflows:
   test_and_distribute:
     jobs:
+      - build
       - node/test:
           name: unit-test
           pkg-manager: npm
@@ -84,5 +83,9 @@ workflows:
           npm-run: lint
           pkg-manager: npm
           version: 12.22.5
-      - detox_ios
-      - detox_android
+      - detox_ios:
+          requires: 
+            - build
+      - detox_android:
+          requires: 
+            - build
