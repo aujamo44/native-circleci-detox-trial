@@ -48,7 +48,7 @@ jobs:
       - rn/setup_macos_executor
       - run: brew install applesimutils
       - rn/pod_install
-      - run: applesimutils -l
+      - run: xcrun simctl list
       - rn/ios_simulator_start:
           device: iPhone 12
       - detox_build_ios
