@@ -46,7 +46,6 @@ jobs:
       - checkout
       - run:  npm install
       - rn/setup_macos_executor
-      - run: brew install applesimutils
       - rn/pod_install
       - rn/ios_simulator_start:
           device: iPhone 14
@@ -73,11 +72,6 @@ jobs:
 workflows:
   test_and_distribute:
     jobs:
-      - node/test:
-          name: unit-test
-          pkg-manager: npm
-          run-command: test 
-          version: 16.14.0
       - node/run:
           name: eslint
           npm-run: lint

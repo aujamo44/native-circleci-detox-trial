@@ -1,5 +1,5 @@
 import React from 'react';
-import {Button, Text, TextInput, View, StyleSheet} from 'react-native';
+import {Button, Text, View, StyleSheet} from 'react-native';
 
 const App = () => {
   const [message, setMessage] = React.useState();

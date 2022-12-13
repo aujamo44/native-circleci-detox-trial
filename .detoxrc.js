@@ -13,7 +13,7 @@ module.exports = {
     'ios.debug': {
       type: 'ios.app',
       binaryPath: 'ios/build/Build/Products/Debug-iphonesimulator/MyTestProject.app',
-      build: 'xcodebuild -workspace ios/MyTestProject.xcworkspace -scheme MyTestProject -configuration Debug -sdk iphonesimulator -derivedDataPath ios/build'
+      build: 'xcodebuild -workspace ios/MyTestProject.xcworkspace -scheme MyTestProject -configuration Debug -sdk iphonesimulator -derivedDataPath ios/build -quiet'
     },
     'ios.release': {
       type: 'ios.app',
@@ -35,7 +35,7 @@ module.exports = {
     simulator: {
       type: 'ios.simulator',
       device: {
-        type: 'iPhone 12'
+        type: 'iPhone 14'
       }
     },
     attached: {
