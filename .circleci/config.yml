@@ -14,6 +14,7 @@ commands:
             - ios-build-cache-{{ arch }}-{{ checksum "~/.tmp/checksumfiles/package.json" }}
       - metro_start
       - run: |
+          npm install -g detox-cli react-native-cli
           detox build --configuration ios.sim.debug
       - save_cache:
           key: ios-build-cache-{{ arch }}-{{ checksum "~/.tmp/checksumfiles/package.json" }}
@@ -25,6 +26,7 @@ commands:
       - android/restore-gradle-cache
       - metro_start
       - run: |
+          npm install -g detox-cli react-native-cli
           detox build --configuration android.emu.debug
       - android/save-gradle-cache
 
@@ -42,7 +44,6 @@ jobs:
     steps:
       - checkout
       - run:  npm install
-      - run:  npm install -g detox-cli react-native-cli
           
   detox_ios:
     executor:
