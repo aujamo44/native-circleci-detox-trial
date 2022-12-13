@@ -104,7 +104,7 @@ jobs:
           key: v1-dependencies-{{ .Branch }}-{{ checksum "package-lock.json" }}
       - run: pwd
       - persist_to_workspace:
-          root: ~/
+          root: ~/project
           paths:
             - native-circleci-detox-trial
 
