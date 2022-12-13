@@ -10,3 +10,6 @@ Then('user should see the hello text', async () => {
   await element(by.id('hello_button')).tap();
   await expect(element(by.id('printed-message'))).toBeVisible();
 });
+When('user clicks the non-existing button', async () => {
+  await expect(element(by.id('no_button'))).toBeVisible();
+});

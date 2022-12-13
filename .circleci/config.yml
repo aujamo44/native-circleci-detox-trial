@@ -50,7 +50,7 @@ jobs:
       - rn/ios_simulator_start:
           device: iPhone 14
       - detox_build_ios
-      - run: npm run test-ios
+      - run: npm run test-ios -- --tags @passing
       - store_artifacts:
           path: artifacts
 
@@ -65,12 +65,26 @@ jobs:
       - rn/android_emulator_start:
           device_name: Pixel_5_API_30
       - detox_build_android
-      - run: npm run test-android
+      - run: npm run test-android -- --tags @passing
       - store_artifacts:
           path: artifacts
       
+  failing_detox_android:
+    executor:
+      name: android/android-machine
+      resource-class: large
+      tag: 2021.10.1
+    steps:
+      - checkout
+      - run:  npm install
+      - rn/android_emulator_start:
+          device_name: Pixel_5_API_30
+      - detox_build_android
+      - run: npm run test-android -- --tags @failing
+      - store_artifacts:
+          path: artifacts   
 workflows:
-  test_and_distribute:
+  Trial/Demo:
     jobs:
       - node/run:
           name: eslint
