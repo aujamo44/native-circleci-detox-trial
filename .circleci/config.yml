@@ -71,7 +71,7 @@ workflows:
       - node/test:
           name: unit-test
           pkg-manager: npm
-          run-command: npm run test 
+          run-command: test 
           version: 16.14.0
       - node/run:
           name: eslint
