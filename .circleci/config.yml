@@ -84,7 +84,7 @@ jobs:
       - store_artifacts:
           path: artifacts   
 workflows:
-  Trial/Demo:
+  MyTrial:
     jobs:
       - node/run:
           name: eslint
