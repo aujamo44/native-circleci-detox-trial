@@ -1,7 +1,6 @@
 module.exports = {
   root: true,
   extends: '@react-native-community',
-  module: 'arguments',
   globals: {
     Given: true,
     When: true,

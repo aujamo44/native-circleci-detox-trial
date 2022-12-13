@@ -1,6 +1,7 @@
-const arguments = ['cucumber/*.feature', '-f @cucumber/pretty-formatter'].join(
-  ' ',
-);
+const cucumberStart = [
+  'cucumber/*.feature',
+  '-f @cucumber/pretty-formatter',
+].join(' ');
 module.exports = {
-  default: arguments,
+  default: cucumberStart,
 };
