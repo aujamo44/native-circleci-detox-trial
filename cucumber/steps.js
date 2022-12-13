@@ -1,4 +1,4 @@
-import {Then, When, Given} from '@cucumber/cucumber';
+const {Then, When, Given} = require('@cucumber/cucumber');
 
 Given('user sees the homescreen', async () => {
   await device.reloadReactNative();
