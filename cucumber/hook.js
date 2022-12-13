@@ -1,21 +1,33 @@
-import {
+const {device} = require('../node_modules/detox');
+const {
   Before,
   BeforeAll,
   AfterAll,
   setDefaultTimeout,
-} from '@cucumber/cucumber';
+  After,
+} = require('@cucumber/cucumber');
+const {init, cleanup} = require('../node_modules/detox/internals');
 setDefaultTimeout(240 * 1000);
 
-const init = require('../node_modules/detox/internals').init({workerId: null});
-const cleanup = require('../node_modules/detox/internals').cleanup();
-
 BeforeAll(async () => {
-  await init;
+  await init();
   await device.launchApp({newInstance: true});
 });
 Before(async () => {
   await device.reloadReactNative();
 });
+After(async scenario => {
+  const testSummary = {
+    fullName: scenario.pickle.name,
+    status: scenario.result.status.toLowerCase(),
+  };
+  if (scenario.result.status === 'FAILED') {
+    const scenarioName = scenario.pickle.name.replace(/\s+/g, '-');
+    await device.takeScreenshot(`${device.getPlatform()}_${scenarioName}`);
+  }
+
+  await testSummary;
+});
 AfterAll(async () => {
-  await cleanup;
+  await cleanup();
 });
