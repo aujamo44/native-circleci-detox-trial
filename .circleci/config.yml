@@ -50,7 +50,7 @@ jobs:
       - rn/ios_simulator_start:
           device: iPhone 14
       - detox_build_ios
-      - run: detox test --configuration ios.sim.debug --take-screenshots all
+      - run: npm run test-ios
       - store_artifacts:
           path: artifacts
 
@@ -65,7 +65,7 @@ jobs:
       - rn/android_emulator_start:
           device_name: Pixel_5_API_30
       - detox_build_android
-      - run: detox test --configuration android.emu.debug --cleanup --take-screenshots all
+      - run: npm run test-android
       - store_artifacts:
           path: artifacts
       
