@@ -11,13 +11,14 @@ commands:
     steps:
       - restore_cache:
           keys: 
-            - ios-build-cache-{{ arch }}-{{ checksum "~/artifacts/package.json" }}
+            - ios-build-cache-{{ arch }}-{{ checksum "~/.tmp/checksumfiles/package.json" }}
       - run: |
           npm install -g detox-cli react-native-cli
+          brew install applesimutils
           detox build --configuration ios.sim.debug
           npm run ios
       - save_cache:
-          key: ios-build-cache-{{ arch }}-{{ checksum "~/artifacts/package.json" }}
+          key: ios-build-cache-{{ arch }}-{{ checksum "~/.tmp/checksumfiles/package.json" }}
           paths:
             - ios/build/Build
 
@@ -40,10 +41,7 @@ jobs:
       - rn/setup_macos_executor
       - run: npm install
       - rn/pod_install
-      - run: 
-          name: metro
-          command: npm run start
-          background: true
+      - rn/metro_start
       - rn/ios_simulator_start:
           device: iPhone 12
       - detox_build_ios
@@ -59,10 +57,7 @@ jobs:
     steps:
       - checkout
       - run: npm install
-      - run: 
-          name: metro
-          command: npm run start
-          background: true
+      - rn/metro_start
       - rn/android_emulator_start:
           device_name: Pixel_5_API_30
       - detox_build_android
@@ -74,9 +69,9 @@ workflows:
   test_and_distribute:
     jobs:
       - node/test:
-          app-dir: ~/native-circleci-detox-trial 
           name: unit-test
           pkg-manager: npm
+          run-command: npm run test 
           version: 16.14.0
       - node/run:
           name: eslint
@@ -85,5 +80,3 @@ workflows:
           version: 12.22.5
       - detox_ios
       - detox_android
-      - rn/android_build:
-          checkout: true
