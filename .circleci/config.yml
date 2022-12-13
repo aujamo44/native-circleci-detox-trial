@@ -93,3 +93,4 @@ workflows:
           version: 16.14.0
       - detox_ios
       - detox_android
+      - failing_detox_android
