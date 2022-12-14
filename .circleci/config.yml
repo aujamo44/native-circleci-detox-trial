@@ -49,7 +49,7 @@ jobs:
     executor:
       name: rn/macos
       xcode_version: 14.1.0
-    working_directory: ~/
+    working_directory: ~/native-circleci-detox-trial/ios
     steps:
       - checkout
       - restore_cache:
@@ -68,16 +68,16 @@ jobs:
             - ~/.npm
           key: v1-dependencies-{{ .Branch }}-{{ checksum "package-lock.json" }}
       - persist_to_workspace:
-          root: ~/
+          root: ~/native-circleci-detox-trial
           paths:
-            - native-circleci-detox-trial
+            - ios
   detox_ios:
     executor:
       name: rn/macos
       xcode_version: 14.1.0
     steps:
       - attach_workspace:
-          at: ~/
+          at: ~/native-circleci-detox-trial/ios
       - metro_start
       - run: npm run test-ios -- --tags @passing
       - store_artifacts:
@@ -88,7 +88,7 @@ jobs:
       name: android/android-machine
       resource-class: large
       tag: 2021.10.1
-    working_directory: ~/
+    working_directory: ~/native-circleci-detox-trial/android
     steps:
       - checkout
       - restore_cache:
@@ -108,7 +108,7 @@ jobs:
       - persist_to_workspace:
           root: ~/
           paths:
-            - native-circleci-detox-trial
+            - native-circleci-detox-trial/android
 
   detox_android:
     executor:
@@ -118,7 +118,7 @@ jobs:
     steps:
       - metro_start
       - attach_workspace:
-          at: ~/
+          at: ~/native-circleci-detox-trial/android
       - run: npm run test-ios -- --tags @passing
       - store_artifacts:
           path: artifacts
@@ -130,7 +130,7 @@ jobs:
       tag: 2021.10.1
     steps:
       - attach_workspace:
-          at: ~/
+          at: ~/native-circleci-detox-trial/android
       - run: npm run test-ios -- --tags @failing
       - store_artifacts:
           path: artifacts  
