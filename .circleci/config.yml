@@ -76,7 +76,7 @@ jobs:
       xcode_version: 14.1.0
     steps:
       - attach_workspace:
-          at: .
+          at: ~/native-circleci-detox-trial 
       - metro_start
       - run: npm run test-ios -- --tags @passing
       - store_artifacts:
@@ -87,7 +87,7 @@ jobs:
       name: android/android-machine
       resource-class: large
       tag: 2021.10.1
-    working_directory: .
+    working_directory: ~/native-circleci-detox-trial
     steps:
       - checkout
       - restore_cache:
