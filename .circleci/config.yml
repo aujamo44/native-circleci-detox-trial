@@ -23,7 +23,6 @@ commands:
   detox_build_android:
     steps:
       - android/restore-gradle-cache
-      - metro_start
       - run: |
           npm install -g detox-cli react-native-cli
           detox build --configuration android.emu.debug
@@ -49,7 +48,7 @@ jobs:
     executor:
       name: rn/macos
       xcode_version: 14.1.0
-    working_directory: ~/native-circleci-detox-trial/ios
+    working_directory: ~/native-circleci-detox-trial
     steps:
       - checkout
       - restore_cache:
@@ -77,7 +76,7 @@ jobs:
       xcode_version: 14.1.0
     steps:
       - attach_workspace:
-          at: ~/native-circleci-detox-trial/ios
+          at: .
       - metro_start
       - run: npm run test-ios -- --tags @passing
       - store_artifacts:
@@ -88,7 +87,7 @@ jobs:
       name: android/android-machine
       resource-class: large
       tag: 2021.10.1
-    working_directory: ~/native-circleci-detox-trial/android
+    working_directory: .
     steps:
       - checkout
       - restore_cache:
@@ -108,7 +107,7 @@ jobs:
       - persist_to_workspace:
           root: ~/
           paths:
-            - native-circleci-detox-trial/android
+            - native-circleci-detox-trial
 
   detox_android:
     executor:
@@ -116,9 +115,9 @@ jobs:
       resource-class: large
       tag: 2021.10.1
     steps:
-      - metro_start
       - attach_workspace:
-          at: ~/native-circleci-detox-trial/android
+          at: ~/native-circleci-detox-trial
+      - metro_start
       - run: npm run test-ios -- --tags @passing
       - store_artifacts:
           path: artifacts
@@ -130,7 +129,7 @@ jobs:
       tag: 2021.10.1
     steps:
       - attach_workspace:
-          at: ~/native-circleci-detox-trial/android
+          at: ~/native-circleci-detox-trial
       - run: npm run test-ios -- --tags @failing
       - store_artifacts:
           path: artifacts  
