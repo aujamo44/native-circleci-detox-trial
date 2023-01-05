@@ -10,13 +10,13 @@ commands:
     steps:
       - restore_cache:
           keys: 
-            - ios-build-cache-{{{ checksum "package.json" }}-{{ arch }}
+            - ios-build-cache-{{ checksum "package.json" }}-{{ arch }}
       - metro_start
       - run: |
           npm install -g detox-cli react-native-cli
           detox build --configuration ios.sim.debug
       - save_cache:
-          key: ios-build-cache-{{{ checksum "package.json" }}-{{ arch }}
+          key: ios-build-cache-{{ checksum "package.json" }}-{{ arch }}
           paths:
             - ios/build/Build
 
