@@ -41,7 +41,6 @@ jobs:
     executor:
       name: rn/macos
       xcode_version: 14.1.0
-      resource_class: large
     steps:
       - checkout
       - run:  npm install
