@@ -118,7 +118,7 @@ jobs:
       - attach_workspace:
           at: ~/native-circleci-detox-trial
       - metro_start
-      - run: npm run test-ios -- --tags @passing
+      - run: npm run test-android -- --tags @passing
       - store_artifacts:
           path: artifacts
       
@@ -130,7 +130,7 @@ jobs:
     steps:
       - attach_workspace:
           at: ~/native-circleci-detox-trial
-      - run: npm run test-ios -- --tags @failing
+      - run: npm run test-android -- --tags @failing
       - store_artifacts:
           path: artifacts  
 
