@@ -45,7 +45,9 @@ jobs:
       - checkout
       - run:  npm install
       - rn/setup_macos_executor
-      - rn/pod_install
+      - run:
+          name: Pod Install
+          command: cd ios && pod install && cd ..
       - rn/ios_simulator_start:
           device: iPhone 14
       - detox_build_ios
