@@ -58,15 +58,13 @@ jobs:
       - run: npm install
       - rn/setup_macos_executor
       - rn/pod_install
-      - rn/ios_simulator_start:
-          device: iPhone 14
       - detox_build_ios
       - save_cache:
           paths: 
             - ~/.npm
           key: v1-dependencies-{{ .Branch }}-{{ checksum "package-lock.json" }}
       - persist_to_workspace:
-          root: /native-circleci-detox-trial
+          root: ~/native-circleci-detox-trial
           paths:
             - ios
   detox_ios:
@@ -75,7 +73,9 @@ jobs:
       xcode_version: 14.1.0
     steps:
       - attach_workspace:
-          at: /native-circleci-detox-trial/ios
+          at: ~/native-circleci-detox-trial/ios
+      - rn/ios_simulator_start:
+          device: iPhone 14
       - metro_start
       - run: npm run test-ios -- --tags @passing
       - store_artifacts:
@@ -95,16 +95,13 @@ jobs:
             # fallback to using the latest cache if no exact match is found
             - v1-dependencies-
       - run: npm install
-      - rn/android_emulator_start:
-          device_name: Pixel_5_API_30
       - detox_build_android
       - save_cache:
           paths: 
             - ~/.npm
           key: v1-dependencies-{{ .Branch }}-{{ checksum "package-lock.json" }}
-      - run: pwd
       - persist_to_workspace:
-          root: /native-circleci-detox-trial
+          root: ~/native-circleci-detox-trial
           paths:
             - android
 
@@ -115,7 +112,9 @@ jobs:
       tag: 2021.10.1
     steps:
       - attach_workspace:
-          at: /native-circleci-detox-trial/android
+          at: ~/native-circleci-detox-trial/android
+      - rn/android_emulator_start:
+          device_name: Pixel_5_API_30
       - metro_start
       - run: npm run test-android -- --tags @passing
       - store_artifacts:
@@ -128,7 +127,10 @@ jobs:
       tag: 2021.10.1
     steps:
       - attach_workspace:
-          at: /native-circleci-detox-trial/android
+          at: ~/native-circleci-detox-trial/android
+      - rn/android_emulator_start:
+          device_name: Pixel_5_API_30
+      - metro_start
       - run: npm run test-android -- --tags @failing
       - store_artifacts:
           path: artifacts  
