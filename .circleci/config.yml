@@ -38,7 +38,7 @@ jobs:
   build:
     docker:
       - image: cimg/node:12.16
-    working_directory: /native-circleci-detox-trial
+    working_directory: ~/native-circleci-detox-trial
     steps:
       - checkout
       - run: npm install
@@ -47,7 +47,7 @@ jobs:
     executor:
       name: rn/macos
       xcode_version: 14.1.0
-    working_directory: /native-circleci-detox-trial
+    working_directory: ~/native-circleci-detox-trial
     steps:
       - checkout
       - restore_cache:
@@ -86,7 +86,7 @@ jobs:
       name: android/android-machine
       resource-class: large
       tag: 2021.10.1
-    working_directory: /native-circleci-detox-trial
+    working_directory: ~/native-circleci-detox-trial
     steps:
       - checkout
       - restore_cache:
