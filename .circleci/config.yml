@@ -71,6 +71,7 @@ jobs:
     executor:
       name: rn/macos
       xcode_version: 14.1.0
+    working_directory: ~/native-circleci-detox-trial
     steps:
       - attach_workspace:
           at: ~/native-circleci-detox-trial/ios
@@ -110,6 +111,7 @@ jobs:
       name: android/android-machine
       resource-class: large
       tag: 2021.10.1
+    working_directory: ~/native-circleci-detox-trial
     steps:
       - attach_workspace:
           at: ~/native-circleci-detox-trial/android
@@ -125,6 +127,7 @@ jobs:
       name: android/android-machine
       resource-class: large
       tag: 2021.10.1
+    working_directory: ~/native-circleci-detox-trial
     steps:
       - attach_workspace:
           at: ~/native-circleci-detox-trial/android
