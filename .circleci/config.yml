@@ -64,17 +64,17 @@ jobs:
             - ~/.npm
           key: v1-dependencies-{{ .Branch }}-{{ checksum "package-lock.json" }}
       - persist_to_workspace:
-          root: ~/native-circleci-detox-trial
+          root: ~/
           paths:
-            - ios
+            - native-circleci-detox-trial
   detox_ios:
     executor:
       name: rn/macos
       xcode_version: 14.1.0
-    working_directory: ~/native-circleci-detox-trial/ios
+    working_directory: ~/native-circleci-detox-trial
     steps:
       - attach_workspace:
-          at: ~/native-circleci-detox-trial/ios
+          at: ~/
       - rn/ios_simulator_start:
           device: iPhone 14
       - metro_start
@@ -97,19 +97,19 @@ jobs:
             - ~/.npm
           key: v1-dependencies-{{ .Branch }}-{{ checksum "package-lock.json" }}
       - persist_to_workspace:
-          root: ~/native-circleci-detox-trial
+          root: ~/
           paths:
-            - android
+            - native-circleci-detox-trial
 
   detox_android:
     executor:
       name: android/android-machine
       resource-class: large
       tag: 2021.10.1
-    working_directory: ~/native-circleci-detox-trial/android
+    working_directory: ~/native-circleci-detox-trial
     steps:
       - attach_workspace:
-          at: ~/native-circleci-detox-trial/android
+          at: ~/
       - rn/android_emulator_start:
           device_name: Pixel_5_API_30
       - metro_start
@@ -122,10 +122,10 @@ jobs:
       name: android/android-machine
       resource-class: large
       tag: 2021.10.1
-    working_directory: ~/native-circleci-detox-trial/android
+    working_directory: ~/native-circleci-detox-trial
     steps:
       - attach_workspace:
-          at: ~/native-circleci-detox-trial/android
+          at: ~/
       - rn/android_emulator_start:
           device_name: Pixel_5_API_30
       - metro_start
