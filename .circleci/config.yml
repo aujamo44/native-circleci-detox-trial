@@ -10,12 +10,13 @@ commands:
     steps:
       - restore_cache:
           keys: 
-            - ios-build-cache-{{ checksum "package.json" }}-{{ arch }}
+            - ios-build-cache-{{ checksum "package.json" }}-{{ .Branch }}
+            - ios-build-cache-
       - run: |
           npm install -g detox-cli react-native-cli
           detox build --configuration ios.sim.debug
       - save_cache:
-          key: ios-build-cache-{{ checksum "package.json" }}-{{ arch }}
+          key: ios-build-cache-{{ checksum "package.json" }}-{{ .Branch }}
           paths:
             - ios/build/Build
 
@@ -58,10 +59,17 @@ jobs:
       - run: npm install
       - rn/setup_macos_executor
       - rn/pod_install
+      - rn/ios_build:
+          project_path: /ios 
+          scheme: MyTestProject 
+          derived_data_path: ios/build/Build 
+          device: iPhone 14 
+          project_type: project
       - detox_build_ios
       - save_cache:
           paths: 
             - ~/.npm
+            - ~/.cache
           key: v1-dependencies-{{ .Branch }}-{{ checksum "package-lock.json" }}
       - persist_to_workspace:
           root: ~/
@@ -78,7 +86,7 @@ jobs:
       - rn/ios_simulator_start:
           device: iPhone 14
       - metro_start
-      - run: npm run test-ios -- --tags @passing
+      - run: detox clean-framework-cache && detox build-framework-cache && npm run test-ios -- --tags @passing
       - store_artifacts:
           path: artifacts
 
