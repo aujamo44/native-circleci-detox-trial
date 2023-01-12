@@ -19,7 +19,7 @@ commands:
       - save_cache:
           key: ios-build-cache-{{ checksum "/ios/build/Build" }}-{{ .Branch }}
           paths:
-            - ios/build/Build
+                  - ~./ios/build/Build
 
   detox_build_android:
     steps:
