@@ -60,11 +60,11 @@ jobs:
       - rn/setup_macos_executor
       - rn/pod_install
       - rn/ios_build:
-          project_path: /ios 
+          project_path: ios/MyTestProject.xcworkspace
           scheme: MyTestProject 
-          derived_data_path: ios/build/Build 
+          derived_data_path: ios/build
           device: iPhone 14 
-          project_type: project
+          project_type: workspace
       - detox_build_ios
       - save_cache:
           paths: 
