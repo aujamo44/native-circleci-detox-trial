@@ -8,18 +8,10 @@ orbs:
 commands:
   detox_build_ios:
     steps:
-      - restore_cache:
-          keys: 
-            - ios-build-cache-{{ checksum "/ios/build/Build" }}-{{ .Branch }}
-            - ios-build-cache-
       - run: |
           npm install -g detox-cli react-native-cli
           detox clean-framework-cache && detox build-framework-cache
           detox build --configuration ios.sim.debug
-      - save_cache:
-          key: ios-build-cache-{{ checksum "/ios/build/Build" }}-{{ .Branch }}
-          paths:
-                  - ~./ios/build/Build
 
   detox_build_android:
     steps:
@@ -81,6 +73,9 @@ jobs:
       - rn/ios_simulator_start:
           device: iPhone 14
       - metro_start
+      - run:
+          name: Clean Detox
+          command: detox clean-framework-cache && detox build-framework-cache
       - run: npm run test-ios -- --tags @passing
       - store_artifacts:
           path: artifacts
