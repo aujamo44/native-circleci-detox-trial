@@ -73,6 +73,9 @@ jobs:
       - rn/ios_simulator_start:
           device: iPhone 14
       - metro_start
+      - run: 
+          name: TEMP install detox
+          command: npm install -g detox-cli react-native-cli
       - run:
           name: Clean Detox
           command: detox clean-framework-cache && detox build-framework-cache
