@@ -142,18 +142,18 @@ workflows:
   MyTrial:
     jobs:
       - build
-      #- build_ios:
-          #requires: 
-            #- build
+      - build_ios:
+          requires: 
+            - build
       - build_android:
           requires: 
             - build
-      #- detox_ios:
-          #requires: 
-            #- build_ios
+      - detox_ios:
+          requires: 
+            - build_ios
       - detox_android:
           requires: 
             - build_android
-      #- failing_detox_android: 
-          #requires: 
-            #- build_android
+      - failing_detox_android: 
+          requires: 
+            - build_android
