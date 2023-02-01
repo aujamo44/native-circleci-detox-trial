@@ -44,11 +44,12 @@ jobs:
     working_directory: ~/native-circleci-detox-trial
     steps:
       - checkout
-      #- restore_cache:
-          #keys:
-            #- vv1-dependencies-{{ .Branch }}-{{ checksum "package-lock.json" }}
-            # fallback to using the latest cache if no exact match is found
-            # - vv1-dependencies-
+      - restore_cache:
+          keys:
+            # when lock file changes, use increasingly general patterns to restore cache
+            - node-v1-{{ .Branch }}-{{ checksum "package-lock.json" }}
+            - node-v1-{{ .Branch }}-
+            - node-v1-
       - run: npm install
       - rn/pod_install
       - detox_build_ios
@@ -90,15 +91,16 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - vv1-dependencies-{{ .Branch }}-{{ checksum "package-lock.json" }}
-            # fallback to using the latest cache if no exact match is found
-            - vv1-dependencies-
+            # when lock file changes, use increasingly general patterns to restore cache
+            - node-v1-{{ .Branch }}-{{ checksum "package-lock.json" }}
+            - node-v1-{{ .Branch }}-
+            - node-v1-
       - run: npm install
       - detox_build_android
       - save_cache:
-          paths: 
-            - ~/.npm
-          key: vv1-dependencies-{{ .Branch }}-{{ checksum "package-lock.json" }}
+          paths:
+            - ~/usr/local/lib/node_modules  # location depends on npm version
+          key: node-v1-{{ .Branch }}-{{ checksum "package-lock.json" }}
       - persist_to_workspace:
           root: ~/
           paths:
@@ -140,18 +142,18 @@ workflows:
   MyTrial:
     jobs:
       - build
-      - build_ios:
-          requires: 
-            - build
-      #- build_android:
+      #- build_ios:
           #requires: 
             #- build
-      - detox_ios:
+      - build_android:
           requires: 
-            - build_ios
-      # - detox_android:
+            - build
+      #- detox_ios:
           #requires: 
-            #- build_android
+            #- build_ios
+      - detox_android:
+          requires: 
+            - build_android
       #- failing_detox_android: 
           #requires: 
             #- build_android
