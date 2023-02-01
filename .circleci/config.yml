@@ -46,9 +46,9 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - v1-dependencies-{{ .Branch }}-{{ checksum "package-lock.json" }}
+            - vv1-dependencies-{{ .Branch }}-{{ checksum "package-lock.json" }}
             # fallback to using the latest cache if no exact match is found
-            - v1-dependencies-
+            - vv1-dependencies-
       - run: npm install
       - rn/setup_macos_executor
       - rn/pod_install
@@ -57,7 +57,7 @@ jobs:
           paths: 
             - ~/.npm
             - ~/.cache
-          key: v1-dependencies-{{ .Branch }}-{{ checksum "package-lock.json" }}
+          key: vv1-dependencies-{{ .Branch }}-{{ checksum "package-lock.json" }}
       - persist_to_workspace:
           root: ~/
           paths:
@@ -73,9 +73,6 @@ jobs:
       - rn/ios_simulator_start:
           device: iPhone 14
       - metro_start
-      - run: 
-          name: TEMP install detox
-          command: npm install -g detox-cli react-native-cli
       - run:
           name: Clean Detox
           command: detox clean-framework-cache && detox build-framework-cache
@@ -91,12 +88,17 @@ jobs:
     working_directory: ~/native-circleci-detox-trial
     steps:
       - checkout
+      - restore_cache:
+          keys:
+            - vv1-dependencies-{{ .Branch }}-{{ checksum "package-lock.json" }}
+            # fallback to using the latest cache if no exact match is found
+            - vv1-dependencies-
       - run: npm install
       - detox_build_android
       - save_cache:
           paths: 
             - ~/.npm
-          key: v1-dependencies-{{ .Branch }}-{{ checksum "package-lock.json" }}
+          key: vv1-dependencies-{{ .Branch }}-{{ checksum "package-lock.json" }}
       - persist_to_workspace:
           root: ~/
           paths:
