@@ -75,7 +75,7 @@ jobs:
       - metro_start
       - run:
           name: Clean Detox
-          command: npx detox clean-framework-cache && detox build-framework-cache
+          command: npx detox clean-framework-cache && npx detox build-framework-cache
       - run: npm run test-ios -- --tags @passing
       - store_artifacts:
           path: artifacts
