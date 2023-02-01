@@ -50,7 +50,6 @@ jobs:
             # fallback to using the latest cache if no exact match is found
             # - vv1-dependencies-
       - run: npm install
-      - rn/setup_macos_executor
       - rn/pod_install
       - detox_build_ios
       - save_cache:
@@ -70,6 +69,7 @@ jobs:
     steps:
       - attach_workspace:
           at: ~/
+      - rn/setup_macos_executor
       - rn/ios_simulator_start:
           device: iPhone 14
       - metro_start
