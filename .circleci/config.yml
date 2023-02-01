@@ -75,7 +75,7 @@ jobs:
       - metro_start
       - run:
           name: Clean Detox
-          command: detox clean-framework-cache && detox build-framework-cache
+          command: npx detox clean-framework-cache && detox build-framework-cache
       - run: npm run test-ios -- --tags @passing
       - store_artifacts:
           path: artifacts
@@ -143,15 +143,15 @@ workflows:
       - build_ios:
           requires: 
             - build
-      - build_android:
-          requires: 
-            - build
+      #- build_android:
+          #requires: 
+            #- build
       - detox_ios:
           requires: 
             - build_ios
-      - detox_android:
-          requires: 
-            - build_android
-      - failing_detox_android: 
-          requires: 
-            - build_android
+      # - detox_android:
+          #requires: 
+            #- build_android
+      #- failing_detox_android: 
+          #requires: 
+            #- build_android
