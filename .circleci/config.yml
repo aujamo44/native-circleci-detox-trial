@@ -55,9 +55,8 @@ jobs:
       - detox_build_ios
       - save_cache:
           paths: 
-            - ~/.npm
-            - ~/.cache
-          key: vv1-dependencies-{{ .Branch }}-{{ checksum "package-lock.json" }}
+            - ~/usr/local/lib/node_modules  # location depends on npm version
+          key: node-v1-{{ .Branch }}-{{ checksum "package-lock.json" }}
       - persist_to_workspace:
           root: ~/
           paths:
