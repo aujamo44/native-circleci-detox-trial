@@ -78,7 +78,7 @@ jobs:
           command: npx detox clean-framework-cache && npx detox build-framework-cache
       - run: npm run test-ios -- --tags @passing
       - store_artifacts:
-          path: artifacts
+          path: artifacts/ios
 
   build_android:
     executor:
@@ -119,7 +119,7 @@ jobs:
       - metro_start
       - run: npm run test-android -- --tags @passing
       - store_artifacts:
-          path: artifacts
+          path: artifacts/android
       
   failing_detox_android:
     executor:

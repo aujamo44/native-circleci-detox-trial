@@ -6,15 +6,27 @@ const {
   setDefaultTimeout,
   After,
 } = require('@cucumber/cucumber');
-const {init, cleanup} = require('../node_modules/detox/internals');
+const {
+  init,
+  cleanup,
+  onTestDone,
+  onTestStart,
+} = require('../node_modules/detox/internals');
 setDefaultTimeout(240 * 1000);
 
 BeforeAll(async () => {
   await init();
   await device.launchApp({newInstance: true});
 });
-Before(async () => {
+Before(async testCase => {
   await device.reloadReactNative();
+
+  const testSummary = {
+    fullName: testCase.pickle.name,
+    status: 'running',
+  };
+
+  onTestStart(testSummary);
 });
 After(async scenario => {
   const testSummary = {
@@ -26,7 +38,7 @@ After(async scenario => {
     await device.takeScreenshot(`${device.getPlatform()}_${scenarioName}`);
   }
 
-  await testSummary;
+  await onTestDone(testSummary);
 });
 AfterAll(async () => {
   await cleanup();

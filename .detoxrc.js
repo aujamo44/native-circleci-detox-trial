@@ -54,7 +54,10 @@ module.exports = {
   configurations: {
     'ios.sim.debug': {
       device: 'simulator',
-      app: 'ios.debug'
+      app: 'ios.debug',
+      artifacts: {
+        rootDir: 'artifacts/ios',
+      }
     },
     'ios.sim.release': {
       device: 'simulator',
@@ -70,7 +73,10 @@ module.exports = {
     },
     'android.emu.debug': {
       device: 'emulator',
-      app: 'android.debug'
+      app: 'android.debug',
+      artifacts: {
+        rootDir: 'artifacts/android',
+      }
     },
     'android.emu.release': {
       device: 'emulator',
