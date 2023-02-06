@@ -9,9 +9,9 @@
     "test": "jest",
     "lint": "eslint .",
     "build-android": "detox build -c android.emu.debug",
-    "test-android": "DETOX_CONFIGURATION=android.emu.debug npx cucumber-js",
     "build-ios": "detox build -c ios.sim.debug",
-    "test-ios": "DETOX_CONFIGURATION=ios.sim.debug npx cucumber-js",
+    "test-android": "DETOX_CONFIGURATION=android.emu.debug DETOX_RECORD_VIDEOS='failing' npx cucumber-js",
+    "test-ios": "DETOX_CONFIGURATION=ios.sim.debug DETOX_RECORD_VIDEOS='failing' npx cucumber-js",
     "circle-test": "detox test -c android.emu.debug"
   },
   "dependencies": {
